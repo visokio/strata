@@ -120,8 +120,10 @@ window.__errors = []; window.__selection = undefined; window.__queries = [];
           // pass) leaves the foot line's rows, which have no Layer, as they are.
           var passing = !window.__keep ? rows : rows.filter(function (r) { return !r.Layer || window.__keep.indexOf(r.Layer) >= 0; });
           // window.__utc: dates as the real server sends them, "2026-01-05T08:00:00Z".
+          if (window.__utc && window.__midnight) passing = passing.concat([window.__midnight]);
           if (window.__utc) passing = passing.map(function (r) {
-            var z = function (v) { return v ? v.replace(" ", "T") + "Z" : v; };
+            // ...and a midnight as the date alone, "2026-01-06", as it does.
+            var z = function (v) { return !v ? v : / 00:00:00$/.test(v) ? v.slice(0, 10) : v.replace(" ", "T") + "Z"; };
             return Object.assign({}, r, {Start: z(r.Start), End: z(r.End), At: z(r.At)});
           });
           // window.__bare: Layers a filter on the stretches took all the stretches of, not the commits.
@@ -167,7 +169,13 @@ writeFileSync(path.join(dir, "momentat.html"), html.replace("window.__errors = [
 const bare = [...new Set(rows.filter(r => r.At).map(r => r.Layer))].slice(0, 3);
 writeFileSync(path.join(dir, "bare.html"), html.replace("window.__errors = [];",
   "window.__errors = []; window.__bare = " + JSON.stringify(bare) + ";"));
-writeFileSync(path.join(dir, "utc.html"), html.replace("window.__errors = [];", "window.__errors = []; window.__utc = true;"));
+// A stretch running on to the midnight after the last one ends, as an open line
+// does at a window's end.
+const lastRow = rows.filter(r => r.Layer && r.Start !== r.End).sort((a, b) => a.End < b.End ? -1 : 1).pop();
+const nextMidnight = new Date(Date.parse(lastRow.End.slice(0, 10) + "T00:00:00Z") + 86400e3).toISOString().slice(0, 10);
+const midnight = {...lastRow, Start: lastRow.End, End: nextMidnight + " 00:00:00", Emphasis: 0};
+writeFileSync(path.join(dir, "utc.html"), html.replace("window.__errors = [];",
+  "window.__errors = []; window.__utc = true; window.__midnight = " + JSON.stringify(midnight) + ";"));
 writeFileSync(path.join(dir, "flipped.html"), html.replace("window.__errors = [];",
   "window.__errors = []; window.__options = " + JSON.stringify({...OPTIONS, order: "Longest-lived at the bottom"}) + ";"));
 writeFileSync(path.join(dir, "shared.html"), html.replace("window.__errors = [];",
@@ -347,12 +355,14 @@ try {
       const zoom = document.querySelector(".zoom input"); zoom.value = "0"; zoom.dispatchEvent(new Event("input"));
       await new Promise(r => setTimeout(r, 400));
     });
-    days.push(await z.$eval("text.daylab", t => t.textContent));
+    days.push(await z.$$eval("text.daylab", ts => [ts[0].textContent, ts[ts.length - 1].textContent]));
   }
   const want = String(+firstDay.slice(8, 10));
-  check(days.every(d => d.split(" ").includes(want)),
-        "dates sent as UTC show their own clock times anywhere: first day " + JSON.stringify(days) + ", the data's "
-        + firstDay);
+  // The last stretch ends at a midnight, which Omniscope sends as the date alone: no day after it.
+  const lastDay = String(+lastRow.End.slice(8, 10));
+  check(days.every(([first, last]) => first.split(" ").includes(want) && last.split(" ").includes(lastDay)),
+        "dates sent as UTC show their own clock times anywhere: first and last days " + JSON.stringify(days)
+        + ", the data's " + firstDay + " to " + lastRow.End.slice(0, 10));
   // Longest-lived at the bottom: the first laid, the lowest, is the longest.
   const flipped = await browser.newPage();
   await flipped.setViewport({width: 1200, height: 560});
