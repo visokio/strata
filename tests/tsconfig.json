@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "strict": true,
+    "target": "es2022",
+    "lib": ["es2022", "dom"],
+    "types": [],
+    "module": "commonjs"
+  },
+  "files": ["../src/strata-cloth.js", "../src/strata-view.js", "../src/strata-ui.js"]
+}

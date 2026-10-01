@@ -1,0 +1,20 @@
+{
+  "name": "strata",
+  "version": "1.0.0",
+  "description": "Strata: a timeline of things that open and close, drawn as layers of cloth. Standalone pages and an Omniscope custom view.",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/strata.test.mjs && node tests/customview.test.mjs",
+    "test:unit": "node --test tests/strata.test.mjs",
+    "test:view": "node tests/customview.test.mjs",
+    "typecheck": "tsc -p tests/tsconfig.json",
+    "build": "node tools/build.mjs",
+    "pages": "python3 tools/pages.py",
+    "thumbnail": "node tests/customview.test.mjs --thumbnail customview/thumbnail.png"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^24.0.0",
+    "typescript": "^5.6.0"
+  }
+}
