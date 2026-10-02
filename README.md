@@ -12,6 +12,8 @@ and the cloth re-lays at every step.
 
 **See it live**
 
+- [Drinking from the AI firehose](https://visokio.com/2026/10/02/drinking-from-the-ai-firehose/): the story
+  behind it, with the chart live - why it was made, and what two weeks of AI coding looked like.
 - [A report of two weeks of Claude Code sessions](https://public.omniscope.me/Public/Strata/Report.ior/), in
   Omniscope: zoom, scroll, point at a line, filter by workspace or time.
 - [The public folder](https://public.omniscope.me/Public/Strata/): the report, the Omniscope project that
