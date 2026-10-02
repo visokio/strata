@@ -18,8 +18,8 @@ and the cloth re-lays at every step.
   builds it, and its data.
 - [The Omniscope custom view](https://github.com/visokio/omniscope-custom-views/tree/master/strata), in the
   gallery, built from this repository: add **Strata** to any Omniscope report from the Add View menu. Its
-  README walks through
-  [trying it in Omniscope](https://github.com/visokio/omniscope-custom-views/tree/master/strata#try-it-in-omniscope):
+  README is the guide to
+  [using Strata in Omniscope](https://github.com/visokio/omniscope-custom-views/tree/master/strata#using-strata-in-omniscope):
   the demo project to start from, and the table your own data needs.
 
 ## What's here
