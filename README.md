@@ -29,7 +29,7 @@ and the cloth re-lays at every step.
 | Path | What |
 |---|---|
 | `src/` | The chart: `strata-cloth.js` (the cloth layout), `strata-view.js` (drawing to SVG), `strata-ui.js` (scrolling, zoom, overview strip, tooltip). Plain browser scripts, also loadable in Node; type-checked with JSDoc. |
-| `customview/` | The Omniscope custom view: `index.html`, `manifest.json`, icon, thumbnail and the gallery README. |
+| `customview/` | The Omniscope custom view: `index.html`, `manifest.json`, icon, thumbnail and the gallery README, with the gallery's `sample-data/` (invented service-desk tickets and the script that makes them), `showcase/` and `tests/` (the cases the gallery's views harness runs). |
 | `tools/` | `preview.py` (a standalone page from a CSV), `compose.py` (the demo's tidy tables into the view's rows), `git-branches.py` (a git repo's branches as a Strata table), `pages.py` and `build.mjs`. |
 | `examples/` | `claude-code-sessions-2026-09/` (the live demo's data, four tables), `homebrew-prs-2026-08.csv` (Homebrew's merged pull requests, Aug-Sep 2026), `git-topics-2026-09.csv` (git's topic branches, 1-14 Sep 2026). |
 | `tests/` | Unit tests for the layout and drawing, and a Chromium test of the custom view against a stand-in for Omniscope's API. |
@@ -98,7 +98,8 @@ takes as it is. To update the gallery, with a checkout of
 node tools/build.mjs --to ../omniscope-custom-views/strata
 ```
 
-It replaces the files it makes and leaves anything else there (the gallery's `test.ioz`).
+It replaces the files it makes and leaves anything else there (the gallery's `demo.ioz`, a project made in
+Omniscope, which lives only in the gallery).
 
 To use the view without the gallery, add a custom view in an Omniscope report (Add View, then View Designer),
 and replace its files with those in `dist/customview/strata/`.
