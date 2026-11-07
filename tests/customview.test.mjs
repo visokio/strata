@@ -178,6 +178,11 @@ writeFileSync(path.join(dir, "utc.html"), html.replace("window.__errors = [];",
   "window.__errors = []; window.__utc = true; window.__midnight = " + JSON.stringify(midnight) + ";"));
 writeFileSync(path.join(dir, "flipped.html"), html.replace("window.__errors = [];",
   "window.__errors = []; window.__options = " + JSON.stringify({...OPTIONS, order: "Longest-lived at the bottom"}) + ";"));
+// Emphasis names: the tooltip's words for the stretches, strong first; the foot line drawn
+// from the strong stretches takes the first.
+writeFileSync(path.join(dir, "named.html"), html.replace("window.__errors = [];",
+  "window.__errors = []; window.__options = " + JSON.stringify({...OPTIONS, foot: undefined,
+    emphasisNames: "Worked, Waiting, Queued"}) + ";"));
 writeFileSync(path.join(dir, "shared.html"), html.replace("window.__errors = [];",
   "window.__errors = []; window.__options = " + JSON.stringify({...OPTIONS, label: "Colour"}) + ";"));
 
@@ -417,6 +422,30 @@ try {
         && Math.abs(after2.t - before2.t) < 600 && !shown.atEnd && !shown.errors.length,
         "a wider filter keeps the zoom's share (" + before2.zoom.toFixed(2) + ") and the moment on screen: "
         + day(before2.t) + " -> " + day(after2.t));
+  const named = await browser.newPage();
+  await named.setViewport({width: 1200, height: 560});
+  await named.goto("file://" + path.join(dir, "named.html"), {waitUntil: "load"});
+  await named.waitForSelector("path.grab", {timeout: 5000});
+  const tips = await named.evaluate(() => {
+    const said = [], tip = document.querySelector(".tip");
+    for (const el of [...document.querySelectorAll("path.grab")].slice(0, 30)) {
+      const r = el.getBoundingClientRect();
+      for (const f of [0.2, 0.5, 0.8]) {
+        el.dispatchEvent(new MouseEvent("mousemove", {bubbles: true, clientX: r.left + r.width * f,
+                                                      clientY: r.top + r.height / 2}));
+        said.push(tip.innerHTML.split("<br>")[1].split(":")[0]);   // name, stretch: when, open: when
+      }
+    }
+    const foot = document.querySelector("[data-foot]");
+    if (foot) {
+      const r = foot.getBoundingClientRect();
+      foot.dispatchEvent(new MouseEvent("mousemove", {bubbles: true, clientX: r.left + 2, clientY: r.top + r.height / 2}));
+    }
+    return {said: [...new Set(said)], foot: foot ? tip.querySelector("b").textContent : null};
+  });
+  check(tips.said.length && tips.said.every(w => /^(Worked|Waiting|Queued)$/.test(w))
+        && (tips.foot === null || tips.foot === "Worked, on any line"),
+        "Emphasis names name the stretches in the tooltip: " + JSON.stringify(tips));
   const missing = await browser.newPage();
   await missing.goto("file://" + path.join(dir, "missing.html"), {waitUntil: "load"});
   await new Promise(r => setTimeout(r, 300));
